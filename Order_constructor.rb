@@ -1,32 +1,12 @@
 require "order.rb"
 require "json"
+	
+def JSON_string_to_order_list(jstring, board, player_list)
+	order_package = JSON.parse(jstring)
+	order_list = player_list[order_package[0]].order_list
+	(1...order_package.size()).each{|i| order_list[i-1] = order_package[i].make_order(board)}
+end	
 
-class Order_factory
-	def initialize(board)
-		@board = board
-	end
-	
-	def process_json_string(jstring)
-		return (JSON.parse(jstring)).make_order(board)
-	end
-	
-	def create_move_order()
-	end
-end
-
-class Order_constructor
-	def initialize(jstrings)
-		@orders = jstrings
-	end
-	
-	def self.json_create(o)
-		new(*o["data"])
-	end	
-	
-	def assemble_orders(board)
-		board
-	end	
-end
 
 class Order_keyword
 	attr_reader :data
@@ -55,10 +35,17 @@ class Move_call
 		new(*o["data"])
 	end	
 end
-	
-json_test_string = '{"json_class":"Move","data":[{"coords":[1,0],"dirs":["south","south_east"]}]}'
-json_test_string_2 = '{"json_class":"Move","data":[{"coords":[2,2],"dirs":["north","north","south_west"]}]}'
 
+	
+
+=begin
+test_list = JSON.parse(test_string_with_multiple_orders)
+
+test_list.each{|i| p i}
+p "got here yo!"
+
+
+=begin
 test_board=Board.new(3,3)
 test_unit = Bumper.new(1,0)
 test_victim = Bumper.new(2,2)
@@ -82,5 +69,6 @@ test_board.parse_orders(test_order_list, output_test_string)
 
 test_board.print_board
 p output_test_string
+=end
 
 

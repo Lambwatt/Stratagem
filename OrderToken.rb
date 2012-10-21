@@ -46,11 +46,10 @@ class Move_Token < OrderToken
 	end
 	
 	def to_json(*a)
-		p "ran to_json"
-		{
-			"json_class" => self.class.name,
-			"data" => { "x"=>@unit.pos_x, "y"=>@unit.pos_y, "dir"=>@dir}
-		}.to_json(*a) 
+	{
+		"json_class" => self.class.name,
+		"data" => { "x"=>@unit.pos_x, "y"=>@unit.pos_y, "dir"=>@dir}
+	}.to_json(*a) 
 	end	
 	
 	def execute(board)	
@@ -76,11 +75,10 @@ class AttackToken < OrderToken
 	end
 	
 	def to_json(*a)
-		p "json in the attacker got DONE"
-		{
-			"json_class" => self.class.name,
-			"data" => {"unit_x"=>@unit.pos_x, "unit_y"=>@unit.pos_x, "foe_x"=>@foe.pos_x, "foe_y"=>@foe.pos_y}
-		}.to_json(*a) #uses built in to_json for hash
+	{
+		"json_class" => self.class.name,
+		"data" => {"unit_x"=>@unit.pos_x, "unit_y"=>@unit.pos_x, "foe_x"=>@foe.pos_x, "foe_y"=>@foe.pos_y}
+	}.to_json(*a) #uses built in to_json for hash
 	end	
 	
 	def execute(board)
@@ -116,19 +114,12 @@ class AttackUnitToken < OrderToken
 	end
 end
 
+#local testing method.  Not used for stuff
 def executeOrders(order, board)
-	while(order!= :end)
-		
-		
-		
+	while(order!= :end)		
 		jstring = order.execute(board)
-		
-		print "#{jstring}\n"		
-		
-		order = order.next
-		
-	end
-	 
+		order = order.next		
+	end 
 end
 
 board = Board.new(3,3)

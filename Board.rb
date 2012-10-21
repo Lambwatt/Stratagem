@@ -1,6 +1,5 @@
 require "unit.rb"
 
-#bababoui bababoui bababoui bababoui
 class Point
 	attr_reader :x, :y, :isValid
 	
@@ -107,6 +106,7 @@ class Board
 		orders.each{|i|
 			token = i.create_tokens()
 			while(token != :end)
+				#p "current token #{token}"
 				response = token.execute(self)
 				if(response!= nil)
 					jstring<<(response)
