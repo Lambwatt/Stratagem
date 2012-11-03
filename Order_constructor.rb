@@ -2,6 +2,7 @@ require "order.rb"
 require "json"
 	
 def JSON_string_to_order_list(jstring, board, player_list)
+	p jstring
 	order_package = JSON.parse(jstring)
 	order_list = player_list[order_package[0]].order_list
 	(1...order_package.size()).each{|i| order_list[i-1] = order_package[i].make_order(board)}

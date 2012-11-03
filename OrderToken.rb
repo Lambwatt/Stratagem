@@ -42,13 +42,14 @@ class Move_Token < OrderToken
 	def initialize(unit, dir)
 		super()
 		@unit = unit
+		@tile = [unit.pos_x, unit.pos_y]
 		@dir = dir
 	end
 	
 	def to_json(*a)
 	{
 		"json_class" => self.class.name,
-		"data" => { "x"=>@unit.pos_x, "y"=>@unit.pos_y, "dir"=>@dir}
+		"data" => { "x"=> @tile[0], "y"=> @tile[1], "dir"=> @dir}
 	}.to_json(*a) 
 	end	
 	

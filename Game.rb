@@ -45,17 +45,20 @@ class Game
 		@board.print_board		
 		
 		p"response: #{@response}"
+		return @response
 	end
 end
 
-test_game = Game.new
-test_game.setup_test_game
 
-player_1_string = '[0,{"json_class":"Move","data":[{"coords":[1,0],"dirs":["south","south_east"]}]},{"json_class":"Move","data":[{"coords":[1,0],"dirs":["west","south"]}]}]'
-player_2_string = '[1,{"json_class":"Move","data":[{"coords":[2,2],"dirs":["north","north","south_west"]}]},{"json_class":"Move","data":[{"coords":[2,2],"dirs":["south"]}]}]'
-#test_string_with_multiple_orders = '[0,'<<json_test_string<<','<<json_test_string_2<<']'
+#test_game = Game.new
+#test_game.setup_test_game
 
-test_game.receive_orders(player_1_string)
-test_game.receive_orders(player_2_string)
+#player_1_string = '[0,{"json_class":"Move","data":[{"coords":[1,0],"dirs":["south","south_east"]}]},{"json_class":"Move","data":[{"coords":[1,0],"dirs":["west","south"]}]}]'
+#player_2_string = '[1,{"json_class":"Move","data":[{"coords":[2,2],"dirs":["north","north","south_west"]}]},{"json_class":"Move","data":[{"coords":[2,2],"dirs":["south"]}]}]'
 
-test_game.run_turn
+#test_game.receive_orders(player_1_string)
+#test_game.receive_orders(player_2_string)
+
+#test_game.run_turn
+
+
