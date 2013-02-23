@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1138.51">
+  <style type="text/css">
+  </style>
+</head>
+<body>
+<canvas id="myCanvas" height="300" width = "300" style="width:300px; height:300px">This browser does not support canvas</canvas>
+<script>
+var myCanvas = document.getElementById("myCanvas");
+var context = myCanvas.getContext("2d");
+context.beginPath();
+context.fillStyle = "rgb(0, 0, 0)";
+context.arc(123, 93, 70, 0, 2 * Math.PI, true);
+context.fill();
+
+context.beginPath();
+context.strokeStyle = "rgb(0, 0, 0)";
+context.arc(70, 80, 70, 0, 0.5 * Math.PI, true);
+context.stroke();
+
+context.strokeStyle = "rgb(255, 0, 0)";
+context.lineWidth = 20;
+context.beginPath();
+//context.moveTo(5, 50);
+context.bezierCurveTo(30, 30, 130, 530, 200, 100);
+context.stroke();
+
+
+</script>
+
+<script>
+
+</script>
+</body>
+</html>

@@ -12,6 +12,14 @@ test_game.setup_test_game
 
 get '/hi' do
 	'<html>
+		<head>
+		<script>
+		function myFunction()
+		{
+			alert("Hello World!");
+		}
+		</script>
+		</head>		
 		<form
 			name="input" action="hi" method="post">
 			player 1 moves:<input type="text" name="p1Move" value="'+test_input_1+'">		 
