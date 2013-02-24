@@ -77,6 +77,7 @@ var SelectingPosition = function()
     order = new Array();
     
     //Adjuust orderPath to create the path to the current target square.  Does not consider obstacles.
+    //X and Y should be the number in squares, not mouse coords.
     this.enterSquare = function(x,y)
     {
         //check that tile is in range
@@ -221,6 +222,8 @@ var SelectingPosition = function()
                 }
             }
         }
+        Game.state.lastOverX = tmpX;
+        Game.state.lastOVerY = tmpY;
     }
 
     this.clickObject = function(object)
@@ -506,6 +509,17 @@ canvas.addEventListener("click", function(e){
     }
 });
 
+canvas.addEventListener("mouseover", function(e){
+    if(Game.state == SelectingPosition)
+    {
+        var overX = Math.floor((e.pageX - this.offsetLeft)/100);
+        var overY = Math.floor((e.pageY - this.offsetTop)/100);
+        if(overX != Game.state.lastOverX || overY != Game.state.lastOverY)
+        {
+            Game.state.enterSquare(overX, overY);
+        }
+    }
+});
 setTimeout(function() {
     var startTime = (new Date()).getTime();
     animate(canvas, context, startTime);

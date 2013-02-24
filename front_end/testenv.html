@@ -83,9 +83,10 @@ var SelectingUnit = function()
 
 var SelectingPosition = function()
 {
-    order = new Array();
+    this.order = new Array();
     
     //Adjuust orderPath to create the path to the current target square.  Does not consider obstacles.
+    //X and Y should be the number in squares, not mouse coords.
     this.enterSquare = function(x,y)
     {
         //check that tile is in range
@@ -156,7 +157,7 @@ var SelectingPosition = function()
                                     order[order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 270:
-                                    tmp++;
+                                    tmpX++;
                                     order[order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 315:
@@ -230,6 +231,8 @@ var SelectingPosition = function()
                 }
             }
         }
+        Game.state.lastOverX = tmpX;
+        Game.state.lastOVerY = tmpY;
     }
 
     this.clickObject = function(object)
@@ -358,7 +361,6 @@ function animate(canvas, context, i)
         var image = objects[i].image;
         var x = (100 * objects[i].x) + 34;
         var y = (100 * objects[i].y) + 34;
-        //alert(image +" "+x+" "+y+" ");
         context.drawImage(image, x, y);
     }
     
@@ -383,8 +385,10 @@ function animate(canvas, context, i)
     context.fillRect(300,400,100,100);
     context.strokeRect(300,400,100,100);
     
+    //alert("reached test");
     if(Game.state instanceof SelectingPosition)
     {   
+        //alert("instance of works");
         context.strokeStyle = "rgb(0,0,0)";
         context.moveTo(Game.selectedObject.x, Game.selectedObject.y);
         for(var j = 0; j< Game.state.order.length; j++)
@@ -392,6 +396,7 @@ function animate(canvas, context, i)
             context.lineTo(Game.state.order[j].x,Game.state.order[j].y);
             context.moveTo(Game.state.order[j].x,Game.state.order[j].y);
         }
+        alert("j = "+j);
     }
     i++;
 }
@@ -404,15 +409,12 @@ function process_mouse_click(cx, cy)
     
     if(cy < 400)
     {
-        alert("entered section");
         var tookAction = false;
         for(var i = 0; i<objects.length; i++){
             x = (100 * objects[i].x) + 34;
             y = (100 * objects[i].y) + 34;
-            alert("x = "+x+" cx = "+cx+" objects[i].width = "+(x+objects[i].width)+" y = "+y+" cy = "+cy+" objects[i].height = "+(y+objects[i].height));
             if(cx > x && cx < x + objects[i].width && cy > y && cy < y + objects[i].height)
             {   
-                alert("passed conditions");
                 game.state.clickObject(objects[i]);
                 tookAction = true;
             }
@@ -424,11 +426,9 @@ function process_mouse_click(cx, cy)
     }
     else
     {
-        //alert("cx = "+cx+" cy = "+cy);
         for(var i = 0; i<3; i++){
             if(cx > i*100 && cx < (i+1)*100)
             {
-                //alert("hit clickTurn");
                 Game.state.clickTurn(i);
             }
         }
@@ -515,11 +515,28 @@ canvas.addEventListener("click", function(e){
     }
 });
 
-setTimeout(function() {
+//Doesn't work as mouse over event, 
+canvas.addEventListener("mousemove", function(e){
+    //alert("triggered mouse over, state = "+Game.state);
+    if(Game.state instanceof SelectingPosition)
+    {
+        //alert("detected state");
+        var overX = Math.floor((e.pageX - this.offsetLeft)/100);
+        var overY = Math.floor((e.pageY - this.offsetTop)/100);
+        if(overX != Game.state.lastOverX || overY != Game.state.lastOverY)
+        {
+            //alert("passed condition");
+            Game.state.enterSquare(overX, overY);
+        }
+    }
+});
+
+setInterval(function() {
+    //alert("cycled");
     var startTime = (new Date()).getTime();
     animate(canvas, context, startTime);
+    
 }, 1000);
-
 
 </script>
 	</body>
