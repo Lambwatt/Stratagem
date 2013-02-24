@@ -15,7 +15,6 @@ var PlayerData = new function PlayerData()
         this.orders.push(null);
         this.orders.push(null);
     }
-   
 }
 
 var Step = function(x,y){
@@ -36,7 +35,7 @@ var Unit = function(){
 
 var SelectingTurn = function()
 {
-    this.clickObect = function(object)
+    this.clickObject = function(object)
     {
         //nothing
     }
@@ -55,10 +54,10 @@ var SelectingTurn = function()
 
 var SelectingUnit = function()
 {
-     this.clickObect = function(object)
+     this.clickObject = function(object)
     {
         Game.selectedObject = object;
-        Game.state = new SelectingSquare;
+        Game.state = new SelectingPosition;
     }
     
     this.clickSquare = function(x,y)
@@ -224,7 +223,7 @@ var SelectingPosition = function()
         }
     }
 
-    this.clickObect = function(object)
+    this.clickObject = function(object)
     {
         PlayerData.orders[Game.turn] = order;
         Game.state = new SelectingTurn;
@@ -396,14 +395,16 @@ function process_mouse_click(cx, cy)
     
     if(cy < 400)
     {
+        alert("entered section");
         var tookAction = false;
-        for(var i = 0; i<objects; i++){
-            x = objects[i].x;
-            y = objects[i].y; 
-            alert("cx = "+cx+" cy = "+cy);
+        for(var i = 0; i<objects.length; i++){
+            x = (100 * objects[i].x) + 34;
+            y = (100 * objects[i].y) + 34;
+            alert("x = "+x+" cx = "+cx+" objects[i].width = "+(x+objects[i].width)+" y = "+y+" cy = "+cy+" objects[i].height = "+(y+objects[i].height));
             if(cx > x && cx < x + objects[i].width && cy > y && cy < y + objects[i].height)
             {   
-                game.state.clickObject(objects(i));
+                alert("passed conditions");
+                game.state.clickObject(objects[i]);
                 tookAction = true;
             }
         }
@@ -414,13 +415,15 @@ function process_mouse_click(cx, cy)
     }
     else
     {
+        //alert("cx = "+cx+" cy = "+cy);
         for(var i = 0; i<3; i++){
             if(cx > i*100 && cx < (i+1)*100)
             {
+                //alert("hit clickTurn");
                 Game.state.clickTurn(i);
             }
         }
-        if(cx > (width-1)*100 && cx < width*100 )
+        if(cx > 300 && cx < 400 )
         {
             submitMoves();
         }
@@ -495,14 +498,12 @@ Game.getInstance().addGameObject(new Unit());
 var orders = new Array();
 
 canvas.addEventListener("click", function(e){
-   var click_x = e.pageX - this.offsetLeft;
-   var click_y = e.pageY - this.offsetTop;
-   
-   alert("PageX = "+e.pageX+" e.pageY ="+e.pageY+" offsetLeft = "+this.offsetLeft+" offsetTop = "+this.offsetTop+ " \listener triggered.  click_x = "+click_x+", click_y = "+click_y);
-   if(click_x>=0 && click_x<300 && click_y>=0 && click_y<300)
-   {
-    process_mouse_click(click_x, click_y);
-   }
+    var click_x = e.pageX - this.offsetLeft;
+    var click_y = e.pageY - this.offsetTop;
+    if(click_x>=0 && click_x<400 && click_y>=0 && click_y<500)
+    {
+        process_mouse_click(click_x, click_y);
+    }
 });
 
 setTimeout(function() {
