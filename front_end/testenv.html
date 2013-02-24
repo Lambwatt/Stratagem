@@ -84,6 +84,8 @@ var SelectingUnit = function()
 var SelectingPosition = function()
 {
     this.order = new Array();
+    this.lastOverX = Game.selectedObject.x;
+    this.lastOverY = Game.selectedObject.y;
     
     //Adjuust orderPath to create the path to the current target square.  Does not consider obstacles.
     //X and Y should be the number in squares, not mouse coords.
@@ -106,7 +108,8 @@ var SelectingPosition = function()
             {
                 if(x == this.order[i].x && y == this.order[i].y)
                 {
-                    order.splice(i+1,order.length -1 - i);//keep an eye on this.  It could be wrong.
+                    //alert("checking position ["+i+"] x = "+x+" order[i].x = "+this.order[i].x+" y = "+y+" order[i].y = "+this.order[i].y);
+                    this.order.splice(i+1,this.order.length -1 - i);//keep an eye on this.  It could be wrong.
                 }
                 //alert("order after splice = "+this.order);
             }
@@ -187,14 +190,14 @@ var SelectingPosition = function()
                 //if not possible, start new path from unit position
                 if(reached == false)
                 {
-                    alert("method 2");
+                    //alert("method 2");
                     var tmpX = Game.selectedObject.x;
                     var tmpY = Game.selectedObject.y; 
                     var angle;
                     for(var i = 0; i<this.order.length; i++)
                     {
                         angle = getAngle(tmpX,tmpY,x,y);
-                        alert("angle from ["+this.order[i].x+","+this.order[i].y+"] = "+angle);
+                        //alert("angle from ["+this.order[i].x+","+this.order[i].y+"] = "+angle);
                         switch(angle)
                         {
                             case 0:
@@ -243,8 +246,6 @@ var SelectingPosition = function()
                 }
             }
         }
-        Game.state.lastOverX = tmpX;
-        Game.state.lastOVerY = tmpY;
     }
 
     this.clickObject = function(object)
@@ -531,9 +532,15 @@ canvas.addEventListener("mousemove", function(e){
     {
         var overX = Math.floor((e.pageX - this.offsetLeft)/100);
         var overY = Math.floor((e.pageY - this.offsetTop)/100);
+        //alert("lastX = "+Game.state.lastOverX+", x = "+overX+", lastY = "+Game.state.lastOverY+" y "+overY);
         if(overX != Game.state.lastOverX || overY != Game.state.lastOverY)
         {
+            //alert("triggered");
             Game.state.enterSquare(overX, overY);
+            //alert("in x changing "+Game.state.lastOverX+" to "+overX);
+            //alert("in y changing "+Game.state.lastOverY+" to "+overY); 
+            Game.state.lastOverX = overX;
+            Game.state.lastOverY = overY;
         }
     }
 });
