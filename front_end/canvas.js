@@ -74,95 +74,102 @@ var SelectingUnit = function()
 
 var SelectingPosition = function()
 {
-    order = new Array();
+    this.order = new Array();
     
     //Adjuust orderPath to create the path to the current target square.  Does not consider obstacles.
     //X and Y should be the number in squares, not mouse coords.
     this.enterSquare = function(x,y)
     {
+        
         //check that tile is in range
         if(Game.selectedObject.movement >= (Math.abs(x-Game.selectedObject.x)) && Game.selectedObject.movement >= (Math.abs(y-Game.selectedObject.y)))
         {
             //if pointing to center, reset path to blank
             if(x == Game.selectedObject.x && y == Game.selectedObject.y)
             {
-                order = [];
+                //alert("cleared order");
+                this.order = [];
             }
             
             //if pointing to position on path, shorten path to be this point
-            for(var i = 0; i< order.length; i++)
+            for(var i = 0; i< this.order.length; i++)
             {
-                if(x == order[i].x && y == order[i].y)
+                if(x == this.order[i].x && y == this.order[i].y)
                 {
-                    order.splice(i,order.length - i);
+                    order.splice(i+1,order.length -1 - i);//keep an eye on this.  It could be wrong.
                 }
+                //alert("order after splice = "+this.order);
             }
         
             //check that movement has not been used up
-            if(order.length < Game.selectedObject.movement)
+            if(this.order.length < Game.selectedObject.movement)
             {
-                order.push(new Step(x,y));
+                this.order.push(new Step(x,y));
+                //alert("under movement "+this.order);
             }
             else
             {
                 var reached = false;
                 //try to modify existing path
-                for(var i = 1; i<=order.length; i++)
+                for(var i = 1; i<=this.order.length; i++)
                 {
                     //if in range of tile
-                    if( Game.selectedObject.movement - i >= (Math.abs(x-order[order.length - i].x)) && Game.selectedObject.movement - i >= (Math.abs(y-order[order.length - i].y)) )
+                    if( Game.selectedObject.movement - i >= (Math.abs(x-this.order[this.order.length - i].x)) && Game.selectedObject.movement - i >= (Math.abs(y-this.order[this.order.length - i].y)) )
                     {
-                        var tmpX = order[order.length - i].x;
-                        var tmpY = order[order.length - i].y; 
+                        var tmpX = this.order[this.order.length - i].x;
+                        var tmpY = this.order[this.order.length - i].y; 
                         var angle;
                         for(var j = 0; j<i; j++)
                         {
                             angle = getAngle(tmpX,tmpY,x,y);
+                            //alert("angle = "+angle);
                             switch(angle)
                             {
                                 case 0:
                                     tmpX++;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 45:
                                     tmpX++;
                                     tmpY--;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 90:
                                     tmpY--;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 135:
                                     tmpX--;
                                     tmpY--;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 180:
                                     tmpX--;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 225:
                                     tmpX--;
                                     tmpY++;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 270:
-                                    tmp++;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    tmpY++;
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 315:
                                     tmpX++;
                                     tmpY++;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                                 case 360:
                                     tmpX++;
-                                    order[order.length-i+j] = new Step(tmpX,tmpY);
+                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
                                     break;
                             }
                         }
                         reached = true;
+                        //alert("passed through switch for tile in range of existing path " + this.order);
+
                     }
                 }
                 
@@ -172,53 +179,55 @@ var SelectingPosition = function()
                     var tmpX = Game.selectedObject.x;
                     var tmpY = Game.selectedObject.y; 
                     var angle;
-                    for(var i = 0; i<order.length; i++)
+                    for(var i = 0; i<this.order.length; i++)
                     {
                         angle = getAngle(tmpX,tmpY,x,y);
+                        //alert("angle = "+angle);
                         switch(angle)
                         {
                             case 0:
                                 tmpX++;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 45:
                                 tmpX++;
                                 tmpY--;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 90:
                                 tmpY--;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 135:
                                 tmpX--;
                                 tmpY--;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 180:
                                 tmpX--;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 225:
                                 tmpX--;
                                 tmpY++;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 270:
-                                tmp++;
-                                order[i] = new Step(tmpX,tmpY);
+                                tmpY++;
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 315:
                                 tmpX++;
                                 tmpY++;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                             case 360:
                                 tmpX++;
-                                order[i] = new Step(tmpX,tmpY);
+                                this.order[i] = new Step(tmpX,tmpY);
                                 break;
                         }
                     }
+                    //alert("passed through switch for new path " + this.order);
                 }
             }
         }
@@ -324,7 +333,7 @@ function animate(canvas, context, i)
 
     //var board = [[0,0,0][0,0,0][0,0,0]];
 
-    var hurskal = document.getElementById("Hurskal");
+    //var hurskal = document.getElementById("Hurskal");
 
     //draw 
     for(var x = 0;x<width;x++)
@@ -352,7 +361,6 @@ function animate(canvas, context, i)
         var image = objects[i].image;
         var x = (100 * objects[i].x) + 34;
         var y = (100 * objects[i].y) + 34;
-        //alert(image +" "+x+" "+y+" ");
         context.drawImage(image, x, y);
     }
     
@@ -379,13 +387,16 @@ function animate(canvas, context, i)
     
     if(Game.state instanceof SelectingPosition)
     {   
-        context.strokeStyle = "rgb(0,0,0)";
+        context.fillStyle = "rgb(0,0,0)";
+        //context.strokeStyle = "rgb(0,0,0)";
         context.moveTo(Game.selectedObject.x, Game.selectedObject.y);
         for(var j = 0; j< Game.state.order.length; j++)
         {
-            context.lineTo(Game.state.order[j].x,Game.state.order[j].y);
-            context.moveTo(Game.state.order[j].x,Game.state.order[j].y);
+            /*context.lineTo(Game.state.order[j].x,Game.state.order[j].y);
+            context.moveTo(Game.state.order[j].x,Game.state.order[j].y);*/
+            context.fillRect((Game.state.order[j].x*100)+25,(Game.state.order[j].y*100)+25,50,50);
         }
+        alert("draw points j = "+j);
     }
     i++;
 }
@@ -398,15 +409,12 @@ function process_mouse_click(cx, cy)
     
     if(cy < 400)
     {
-        alert("entered section");
         var tookAction = false;
         for(var i = 0; i<objects.length; i++){
             x = (100 * objects[i].x) + 34;
             y = (100 * objects[i].y) + 34;
-            alert("x = "+x+" cx = "+cx+" objects[i].width = "+(x+objects[i].width)+" y = "+y+" cy = "+cy+" objects[i].height = "+(y+objects[i].height));
             if(cx > x && cx < x + objects[i].width && cy > y && cy < y + objects[i].height)
             {   
-                alert("passed conditions");
                 game.state.clickObject(objects[i]);
                 tookAction = true;
             }
@@ -418,11 +426,9 @@ function process_mouse_click(cx, cy)
     }
     else
     {
-        //alert("cx = "+cx+" cy = "+cy);
         for(var i = 0; i<3; i++){
             if(cx > i*100 && cx < (i+1)*100)
             {
-                //alert("hit clickTurn");
                 Game.state.clickTurn(i);
             }
         }
@@ -458,7 +464,7 @@ function getAngle(xo, yo, xd, yd)
     else
     {
      //var tmp_angle;
-     var tmp_angle = Math.atan(Math.abs(y)/Math.abs(x)) * 180 / pi;
+     var tmp_angle = Math.atan(Math.abs(y)/Math.abs(x)) * 180 / Math.PI;
 
      var rem = tmp_angle % 45;
      if(Math.floor(rem/22) < 1)
@@ -509,8 +515,8 @@ canvas.addEventListener("click", function(e){
     }
 });
 
-canvas.addEventListener("mouseover", function(e){
-    if(Game.state == SelectingPosition)
+canvas.addEventListener("mousemove", function(e){
+    if(Game.state instanceof SelectingPosition)
     {
         var overX = Math.floor((e.pageX - this.offsetLeft)/100);
         var overY = Math.floor((e.pageY - this.offsetTop)/100);
@@ -520,7 +526,9 @@ canvas.addEventListener("mouseover", function(e){
         }
     }
 });
-setTimeout(function() {
+
+setInterval(function() {
     var startTime = (new Date()).getTime();
     animate(canvas, context, startTime);
-}, 1000);
+    
+}, 30);
