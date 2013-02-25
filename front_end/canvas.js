@@ -7,7 +7,7 @@ window.requestAnimFrame = (function(callback) {
 
 var PlayerData = new function PlayerData()
 {
-    this.playerNumber = 1;//not used yet.
+    this.playerNumber = 1;
     this.orders = new Array();
     for(var i = 0;i<3; i++)
     {
@@ -22,15 +22,33 @@ var Step = function(x,y){
     this.y = y;
 }
 
-var Unit = function(){
-   this.image = document.getElementById("Blue");
-   this.turn = 0;
-   this.x = 2;
-   this.y = 1;
+var Order = function(id, dirs)
+{
+    this.id = id;
+    this.dirs = dirs;
+}
+
+var Unit = function(p,x,y){
+   
+   //this.turn = 0; See if this breaks anything
+   this.id = Game.getId();
+   this.startX = x;
+   this.x = x;
+   this.startY =y;
+   this.y = y;
    this.width = 32;
    this.height = 32;
    this.maxOrders = 3;//may not be necessary
    this.movement = 2;
+   this.player = p;
+   if(this.player==1)
+   {
+    this.image = document.getElementById("Blue");
+   }
+   else
+   {
+    this.image = document.getElementById("Red");
+   }
 }
 
 var SelectingTurn = function()
@@ -56,8 +74,11 @@ var SelectingUnit = function()
 {
      this.clickObject = function(object)
     {
-        Game.selectedObject = object;
-        Game.state = new SelectingPosition;
+        if(PlayerData.playerNumber == object.player)
+        {
+            Game.selectedObject = object;
+            Game.state = new SelectingPosition;
+        }
     }
     
     this.clickSquare = function(x,y)
@@ -75,7 +96,21 @@ var SelectingUnit = function()
 var SelectingPosition = function()
 {
     this.order = new Array();
+    this.lastOverX = Game.selectedObject.x;
+    this.lastOverY = Game.selectedObject.y;
     
+    this.saveOrder = function()
+    {
+        var dirs = [];
+
+        dirs.push(getAngle(Game.selectedObject.x,Game.selectedObject.y,this.order[0].x,this.order[0].y));
+        for(var i = 1; i<this.order.length; i++)
+        {
+            dirs.push(getAngle(this.order[i].x,this.order[i].y,this.order[i-1].x,this.order[i-1].y));
+        }
+        PlayerData.orders[Game.turn] = new Order(Game.selectedObject.id,dirs);
+    }
+
     //Adjuust orderPath to create the path to the current target square.  Does not consider obstacles.
     //X and Y should be the number in squares, not mouse coords.
     this.enterSquare = function(x,y)
@@ -87,34 +122,32 @@ var SelectingPosition = function()
             //if pointing to center, reset path to blank
             if(x == Game.selectedObject.x && y == Game.selectedObject.y)
             {
-                //alert("cleared order");
                 this.order = [];
+                return ;
             }
             
             //if pointing to position on path, shorten path to be this point
-            for(var i = 0; i< this.order.length; i++)
+            for(var i = 0; i< this.order.length-1; i++)
             {
                 if(x == this.order[i].x && y == this.order[i].y)
                 {
-                    order.splice(i+1,order.length -1 - i);//keep an eye on this.  It could be wrong.
+                    this.order.splice(i+1,this.order.length -1 - i);//keep an eye on this.  It could be wrong.
                 }
-                //alert("order after splice = "+this.order);
             }
         
             //check that movement has not been used up
             if(this.order.length < Game.selectedObject.movement)
             {
                 this.order.push(new Step(x,y));
-                //alert("under movement "+this.order);
             }
             else
             {
                 var reached = false;
                 //try to modify existing path
-                for(var i = 1; i<=this.order.length; i++)
+                for(var i = 1; i<this.order.length; i++)
                 {
                     //if in range of tile
-                    if( Game.selectedObject.movement - i >= (Math.abs(x-this.order[this.order.length - i].x)) && Game.selectedObject.movement - i >= (Math.abs(y-this.order[this.order.length - i].y)) )
+                    if( Game.selectedObject.movement - i >= (Math.abs(x-this.order[this.order.length - 1 - i].x)) && Game.selectedObject.movement - i >= (Math.abs(y-this.order[this.order.length -1 - i].y)) )
                     {
                         var tmpX = this.order[this.order.length - i].x;
                         var tmpY = this.order[this.order.length - i].y; 
@@ -122,7 +155,6 @@ var SelectingPosition = function()
                         for(var j = 0; j<i; j++)
                         {
                             angle = getAngle(tmpX,tmpY,x,y);
-                            //alert("angle = "+angle);
                             switch(angle)
                             {
                                 case 0:
@@ -168,21 +200,19 @@ var SelectingPosition = function()
                             }
                         }
                         reached = true;
-                        //alert("passed through switch for tile in range of existing path " + this.order);
-
                     }
                 }
                 
                 //if not possible, start new path from unit position
                 if(reached == false)
                 {
+
                     var tmpX = Game.selectedObject.x;
                     var tmpY = Game.selectedObject.y; 
                     var angle;
                     for(var i = 0; i<this.order.length; i++)
                     {
                         angle = getAngle(tmpX,tmpY,x,y);
-                        //alert("angle = "+angle);
                         switch(angle)
                         {
                             case 0:
@@ -227,23 +257,22 @@ var SelectingPosition = function()
                                 break;
                         }
                     }
-                    //alert("passed through switch for new path " + this.order);
                 }
             }
         }
-        Game.state.lastOverX = tmpX;
-        Game.state.lastOVerY = tmpY;
     }
 
     this.clickObject = function(object)
     {
-        PlayerData.orders[Game.turn] = order;
+        //PlayerData.orders[Game.turn] = this.order;
+        this.saveOrder();
         Game.state = new SelectingTurn;
     }
     
     this.clickSquare = function(x,y)
     {
-        PlayerData.orders[Game.turn] = order;
+        //PlayerData.orders[Game.turn] = this.order;
+        this.saveOrder();
         Game.state = new SelectingTurn;
     }
     
@@ -254,6 +283,14 @@ var SelectingPosition = function()
     }
 } 
 
+setPostitionsForTurn = function(i)
+{
+    if(i==0)
+    {
+        
+    }
+}
+
 var Game = new function Game() 
 {
 	var instance = this;
@@ -261,8 +298,14 @@ var Game = new function Game()
     var player1Objects = new Array();
     var player2Objects = new Array();
     var turn = 0;
+    var id;
     var seslectedObject = null;
     this.state = new SelectingTurn();
+    
+    this.getId = function()
+    {
+        return id++;
+    }
     
 	this.getInstance = function()
 	{
@@ -396,7 +439,6 @@ function animate(canvas, context, i)
             context.moveTo(Game.state.order[j].x,Game.state.order[j].y);*/
             context.fillRect((Game.state.order[j].x*100)+25,(Game.state.order[j].y*100)+25,50,50);
         }
-        alert("draw points j = "+j);
     }
     i++;
 }
@@ -453,13 +495,13 @@ function getAngle(xo, yo, xd, yd)
     var angle = 0;
     if(x == 0)
     {
-     if(y > 0){ angle = 180;}
-     else if(y < 0){ angle = 0; }
+     if(y > 0){ angle = 270;}
+     else if(y < 0){ angle = 90; }
     }
     else if (y == 0)
     {
-     if(x > 0){ angle = 270;}
-     else if(x < 0){angle = 90; }
+     if(x > 0){ angle = 0;}
+     else if(x < 0){angle = 180; }
     }
     else
     {
@@ -477,20 +519,19 @@ function getAngle(xo, yo, xd, yd)
          switch_var = 0;
          if(x>0){ switch_var+=1;}
          if(y>0){ switch_var+=2;}
-
          switch(switch_var)
          {
           case 0:          //quadrant 2
-               angle = 90 - tmp_angle;
+               angle = 90 + tmp_angle;
                break;
           case 1:          //quadrant 1
-               angle = 270 +  tmp_angle;
+               angle = 0 +  tmp_angle;
                break;
           case 2:          //quadrant 3
-               angle = 90 +  tmp_angle;
+               angle = 180 +  tmp_angle;
                break;
           case 3:          //quadrant 4
-               angle = 270 - tmp_angle;
+               angle = 270 + tmp_angle;
                break;
          }
     }
@@ -502,7 +543,8 @@ function getAngle(xo, yo, xd, yd)
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 
-Game.getInstance().addGameObject(new Unit());
+Game.getInstance().addGameObject(new Unit(1,2,1));
+Game.getInstance().addGameObject(new Unit(2,0,3));
 
 var orders = new Array();
 
@@ -522,7 +564,9 @@ canvas.addEventListener("mousemove", function(e){
         var overY = Math.floor((e.pageY - this.offsetTop)/100);
         if(overX != Game.state.lastOverX || overY != Game.state.lastOverY)
         {
-            Game.state.enterSquare(overX, overY);
+            Game.state.enterSquare(overX, overY); 
+            Game.state.lastOverX = overX;
+            Game.state.lastOverY = overY;
         }
     }
 });
