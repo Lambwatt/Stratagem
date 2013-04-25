@@ -32,9 +32,10 @@ var Unit = function(p,x,y){
    
    //this.turn = 0; See if this breaks anything
    this.id = Game.getId();
+   //alert("id assigned was "+this.id);
    this.startX = x;
    this.x = x;
-   this.startY =y;
+   this.startY = y;
    this.y = y;
    this.width = 32;
    this.height = 32;
@@ -51,6 +52,37 @@ var Unit = function(p,x,y){
    }
 }
 
+function runOrder(order)
+{
+    var unit = Game.getObjectById(order.id);
+    var step;
+    for(var i = 0;i<order.dirs.length; i++)
+    {
+        alert("angle "+i+" = "+order.dirs[i]);
+        step = getStepFromAngle(unit.x, unit.y, order.dirs[i]);
+        alert("step returned: "+step);
+        unit.x = step.x;
+        unit.y = step.y;
+    }
+}
+
+function setPositionsForTurn(n)
+{
+    var units = Game.getPlayerObjects(PlayerData.playerNumber)
+    for(var i = 0; i<units.length; i++)
+    {
+        units[i].x = units[i].startX;
+        units[i].y = units[i].startY;
+    }
+    for(var i = 0;i<n;i++)
+    {
+        if(PlayerData.orders[i] == null)
+            return;
+        else
+            runOrder(PlayerData.orders[i]);
+    }
+}
+
 var SelectingTurn = function()
 {
     this.clickObject = function(object)
@@ -65,8 +97,9 @@ var SelectingTurn = function()
     
     this.clickTurn = function(i)
     {
-       Game.turn = i;
-       Game.state = new SelectingUnit; 
+        setPositionsForTurn(i);
+        Game.turn = i;
+        Game.state = new SelectingUnit; 
     }
 } 
 
@@ -88,6 +121,7 @@ var SelectingUnit = function()
     
     this.clickTurn = function(i)
     {
+        setPositionsForTurn(i);
         Game.turn  = i;
         Game.state = new SelectingUnit;
     }
@@ -104,9 +138,11 @@ var SelectingPosition = function()
         var dirs = [];
 
         dirs.push(getAngle(Game.selectedObject.x,Game.selectedObject.y,this.order[0].x,this.order[0].y));
+        //alert("dirs[0] = "+dirs[0]);
         for(var i = 1; i<this.order.length; i++)
         {
-            dirs.push(getAngle(this.order[i].x,this.order[i].y,this.order[i-1].x,this.order[i-1].y));
+            dirs.push(getAngle(this.order[i-1].x,this.order[i-1].y,this.order[i].x,this.order[i].y));
+            //alert("dirs["+i+"] = "+dirs[i]);
         }
         PlayerData.orders[Game.turn] = new Order(Game.selectedObject.id,dirs);
     }
@@ -155,49 +191,8 @@ var SelectingPosition = function()
                         for(var j = 0; j<i; j++)
                         {
                             angle = getAngle(tmpX,tmpY,x,y);
-                            switch(angle)
-                            {
-                                case 0:
-                                    tmpX++;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 45:
-                                    tmpX++;
-                                    tmpY--;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 90:
-                                    tmpY--;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 135:
-                                    tmpX--;
-                                    tmpY--;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 180:
-                                    tmpX--;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 225:
-                                    tmpX--;
-                                    tmpY++;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 270:
-                                    tmpY++;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 315:
-                                    tmpX++;
-                                    tmpY++;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                                case 360:
-                                    tmpX++;
-                                    this.order[this.order.length-i+j] = new Step(tmpX,tmpY);
-                                    break;
-                            }
+                            var step = getStepFromAngle(tmpX,tmpY,angle);
+                            this.order[this.order.length-i+j] = step;
                         }
                         reached = true;
                     }
@@ -213,49 +208,8 @@ var SelectingPosition = function()
                     for(var i = 0; i<this.order.length; i++)
                     {
                         angle = getAngle(tmpX,tmpY,x,y);
-                        switch(angle)
-                        {
-                            case 0:
-                                tmpX++;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 45:
-                                tmpX++;
-                                tmpY--;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 90:
-                                tmpY--;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 135:
-                                tmpX--;
-                                tmpY--;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 180:
-                                tmpX--;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 225:
-                                tmpX--;
-                                tmpY++;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 270:
-                                tmpY++;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 315:
-                                tmpX++;
-                                tmpY++;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                            case 360:
-                                tmpX++;
-                                this.order[i] = new Step(tmpX,tmpY);
-                                break;
-                        }
+                        var step = getStepFromAngle(tmpX,tmpY,angle);
+                        this.order[i] = step;
                     }
                 }
             }
@@ -278,18 +232,12 @@ var SelectingPosition = function()
     
     this.clickTurn = function(i)
     {
+        setPositionsForTurn(i);
         Game.turn  = i;
         Game.state = new SelectingUnit;
     }
 } 
 
-setPostitionsForTurn = function(i)
-{
-    if(i==0)
-    {
-        
-    }
-}
 
 var Game = new function Game() 
 {
@@ -298,7 +246,7 @@ var Game = new function Game()
     var player1Objects = new Array();
     var player2Objects = new Array();
     var turn = 0;
-    var id;
+    var id = 0;
     var seslectedObject = null;
     this.state = new SelectingTurn();
     
@@ -366,6 +314,29 @@ var Game = new function Game()
         {
             //do nothings
         }
+    }
+    
+    this.getObjectById = function(id)
+    {
+        for(var i = 0; i <= id && i < gameObjects.length; i++)
+        {
+            if(gameObjects[i].id==id)
+                return gameObjects[i];
+        }
+        return null;
+    }
+    
+    this.getPlayerObjects = function(i)
+    {
+        if(i == 1)
+        {
+            return player1Objects;
+        }
+        else if(i == 2)
+        {
+            return player2Objects;
+        }
+
     }
 }
 
@@ -481,6 +452,56 @@ function process_mouse_click(cx, cy)
     }
 }
 
+function getStepFromAngle(tmpX, tmpY, angle)
+{
+    var step;
+    switch(angle)
+    {
+        case 0:
+            tmpX++;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 45:
+            tmpX++;
+            tmpY--;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 90:
+            tmpY--;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 135:
+            tmpX--;
+            tmpY--;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 180:
+            tmpX--;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 225:
+            tmpX--;
+            tmpY++;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 270:
+            tmpY++;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 315:
+            tmpX++;
+            tmpY++;
+            step = new Step(tmpX,tmpY);
+            break;
+        case 360:
+            tmpX++;
+            step = new Step(tmpX,tmpY);
+            break;
+    }
+    return step;
+
+}
+
 function submitMoves()
 {
     //TODO: stuff
@@ -515,25 +536,25 @@ function getAngle(xo, yo, xd, yd)
      }else{
             tmp_angle += (45-rem);
      }
-         //var switch_var;
-         switch_var = 0;
-         if(x>0){ switch_var+=1;}
-         if(y>0){ switch_var+=2;}
-         switch(switch_var)
-         {
-          case 0:          //quadrant 2
-               angle = 90 + tmp_angle;
-               break;
-          case 1:          //quadrant 1
-               angle = 0 +  tmp_angle;
-               break;
-          case 2:          //quadrant 3
-               angle = 180 +  tmp_angle;
-               break;
-          case 3:          //quadrant 4
-               angle = 270 + tmp_angle;
-               break;
-         }
+     //var switch_var;
+     switch_var = 0;
+     if(x>0){ switch_var+=1;}
+     if(y>0){ switch_var+=2;}
+     switch(switch_var)
+     {
+      case 0:          //quadrant 2
+           angle = 90 + tmp_angle;
+           break;
+      case 1:          //quadrant 1
+           angle = 0 +  tmp_angle;
+           break;
+      case 2:          //quadrant 3
+           angle = 180 +  tmp_angle;
+           break;
+      case 3:          //quadrant 4
+           angle = 270 + tmp_angle;
+           break;
+     }
     }
     return angle;
     
