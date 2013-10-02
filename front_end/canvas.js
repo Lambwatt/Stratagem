@@ -5,9 +5,49 @@ window.requestAnimFrame = (function(callback) {
         };
       })();
 
+/*function getPlayerNumber() 
+
+//Baked this information into the page instead.
+{
+    //will need to fix this for IE need ActiveXObject for correct mode
+    var request = new XMLHttpRequest();
+    alert("running getPlayerNumber function");
+    document.getElementById("result").innerHTML = 0;
+    /*request.onreadystatechange = function()
+    {
+        alert("running stateChange function");
+        document.getElementById("result").innerHTML = 0;
+        alert(request.readyState);
+        if(request.readyState==4 && request.status == 200)
+        {
+            alert(request.responseText);
+            var jsonString = "("+request.responseText+")"
+            var jsonData = eval(jsonString);
+            document.getElementById("result").innerHTML = jsonData.playerNumber;
+        }
+    }
+    request.open("GET","http://localhost:4567/getPlayerNumber",false);
+    
+    /*if(request.readystate==4 && request.status == 200)
+    {
+        alert(request.responseText);
+        
+        var jsonString = "("+request.responseText+")";
+        alert("json = "+jsonResponse);
+        var jsonResponse = eval(jsonString);
+        document.getElementById("result").innerHTML = output;
+    //}
+    request.send();
+    
+    return document.getElementById("result").innerHTML;
+    
+}*/    
+
 var PlayerData = new function PlayerData()
 {
-    this.playerNumber = 1;
+    var jsonString = "("+document.getElementById("result").value+")";
+    var jsonResponse = eval(jsonString);
+    this.playerNumber = jsonResponse.playerNumber;
     this.orders = new Array();
     for(var i = 0;i<3; i++)
     {
@@ -58,9 +98,7 @@ function runOrder(order)
     var step;
     for(var i = 0;i<order.dirs.length; i++)
     {
-        alert("angle "+i+" = "+order.dirs[i]);
         step = getStepFromAngle(unit.x, unit.y, order.dirs[i]);
-        alert("step returned: "+step);
         unit.x = step.x;
         unit.y = step.y;
     }
@@ -138,11 +176,9 @@ var SelectingPosition = function()
         var dirs = [];
 
         dirs.push(getAngle(Game.selectedObject.x,Game.selectedObject.y,this.order[0].x,this.order[0].y));
-        //alert("dirs[0] = "+dirs[0]);
         for(var i = 1; i<this.order.length; i++)
         {
             dirs.push(getAngle(this.order[i-1].x,this.order[i-1].y,this.order[i].x,this.order[i].y));
-            //alert("dirs["+i+"] = "+dirs[i]);
         }
         PlayerData.orders[Game.turn] = new Order(Game.selectedObject.id,dirs);
     }
@@ -163,19 +199,21 @@ var SelectingPosition = function()
             }
             
             //if pointing to position on path, shorten path to be this point
-            for(var i = 0; i< this.order.length-1; i++)
+            for(var i = 0; i< this.order.length; i++)
             {
                 if(x == this.order[i].x && y == this.order[i].y)
                 {
                     this.order.splice(i+1,this.order.length -1 - i);//keep an eye on this.  It could be wrong.
+                    return;
                 }
             }
         
-            //check that movement has not been used up
+            //check that movement has not been used up 
             if(this.order.length < Game.selectedObject.movement)
             {
                 this.order.push(new Step(x,y));
             }
+            
             else
             {
                 var reached = false;
@@ -201,15 +239,17 @@ var SelectingPosition = function()
                 //if not possible, start new path from unit position
                 if(reached == false)
                 {
-
+                     //alert("took route 2");
                     var tmpX = Game.selectedObject.x;
                     var tmpY = Game.selectedObject.y; 
                     var angle;
-                    for(var i = 0; i<this.order.length; i++)
+                    for(var i = 0; i</*this.order.length*/2; i++)
                     {
                         angle = getAngle(tmpX,tmpY,x,y);
                         var step = getStepFromAngle(tmpX,tmpY,angle);
                         this.order[i] = step;
+                        tmpX = step.x;
+                        tmpY = step.y;
                     }
                 }
             }
@@ -505,9 +545,10 @@ function getStepFromAngle(tmpX, tmpY, angle)
 function submitMoves()
 {
     //TODO: stuff
+    
 }
 
-//code imported from game maker.
+
 function getAngle(xo, yo, xd, yd)
 {
     var x = xd - xo;
@@ -526,7 +567,7 @@ function getAngle(xo, yo, xd, yd)
     }
     else
     {
-     //var tmp_angle;
+
      var tmp_angle = Math.atan(Math.abs(y)/Math.abs(x)) * 180 / Math.PI;
 
      var rem = tmp_angle % 45;
@@ -536,8 +577,8 @@ function getAngle(xo, yo, xd, yd)
      }else{
             tmp_angle += (45-rem);
      }
-     //var switch_var;
-     switch_var = 0;
+
+     var switch_var = 0;
      if(x>0){ switch_var+=1;}
      if(y>0){ switch_var+=2;}
      switch(switch_var)
@@ -597,3 +638,4 @@ setInterval(function() {
     animate(canvas, context, startTime);
     
 }, 30);
+
