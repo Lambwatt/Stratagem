@@ -41,7 +41,74 @@ window.requestAnimFrame = (function(callback) {
     
     return document.getElementById("result").innerHTML;
     
-}*/    
+}*/  
+
+//Animation code
+
+//Initialization
+
+var actualSpriteSheet = document.getElementById("smiley");
+var sheet = new SpriteSheetAnimationSet();
+sheet.addFrameStrip("smiley", 0, 0, 16, 16, 0, 16, 4);
+//alert(sheet.frameSetCount);
+sheet.addAnimation("smiley", "smiley", [0,1,2,3,2,1]);
+
+//var happyFace = sheet.getAnimationInstance("smiley", 4, true);
+
+function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*/){
+
+	alert("ran animation code");
+	this.x = start_x;
+  this.y = start_y;
+  this.speed = speed;
+  this.targetX = end_x;
+  this.targetY = end_y;
+	this.animation = sheet.getAnimationInstance("smiley", 4, true);//caller sprite 
+	this.ticks = 0;
+	this.ended = false;
+  
+  this.move = function(dir)
+  {
+          this.x+= Math.cos(dir);
+          this.y+= Math.sin(dir);   
+	}
+    
+  this.update = function()
+  {
+    for(var i = 0; i<this.speed; i++)
+    {
+      var dx = this.targetX-this.x;
+      var dy = this.targetY-this.y;
+
+      if(Math.sqrt(dx*dx+ dy*dy)>1)
+      {
+        //alert("dx = "+dx+", dy = "+dy)               	
+				this.move(Math.atan2(this.targetY-this.y,(this.targetX-this.x)));
+      }
+      else
+      {
+					animation.setLoop(false);
+          this.ended = true;
+      }
+    }        
+  }
+    
+ 	this.setTarget = function(x,y)
+  {
+    this.targetX = x;
+    this.targetY = y;
+	}
+	
+	this.draw = function(context, spriteSheet){
+		alert("tried to draw");
+		this.ticks++;
+		this.animation.getCurrentFrame(context, this.ticks, spriteSheet, this.x, this.y, 16, 16);
+		this.update();
+	}
+	alert("finished animation code");
+}
+//End animation code
+
 
 var PlayerData = new function PlayerData()
 {
@@ -70,26 +137,37 @@ var Order = function(id, dirs)
 
 var Unit = function(p,x,y){
    
-   //this.turn = 0; See if this breaks anything
-   this.id = Game.getId();
-   //alert("id assigned was "+this.id);
-   this.startX = x;
-   this.x = x;
-   this.startY = y;
-   this.y = y;
-   this.width = 32;
-   this.height = 32;
-   this.maxOrders = 3;//may not be necessary
-   this.movement = 2;
-   this.player = p;
-   if(this.player==1)
-   {
-    this.image = document.getElementById("Blue");
-   }
-   else
-   {
-    this.image = document.getElementById("Red");
-   }
+  //this.turn = 0; See if this breaks anything
+  this.id = Game.getId();
+  //alert("id assigned was "+this.id);
+  this.startX = x;
+  this.x = x;
+  this.startY = y;
+  this.y = y;
+  this.width = 32;
+  this.height = 32;
+  this.maxOrders = 3;//may not be necessary
+  this.movement = 2;
+  this.player = p;
+	this.animation = null;
+  if(this.player==1)
+  {
+   this.image = document.getElementById("Blue");
+  }
+  else
+  {
+   this.image = document.getElementById("Red");
+  }
+	
+	this.animated = function(){
+		if(this.animation==null){alert("failed"); return false;}
+		alert("succeeded, reult = "+this.animation.ended);
+		return !this.animation.ended;
+	}
+
+	this.animateMovement = function(dest_x, dest_y){
+		this.animation = new movementAnimation(this.x, this.y, dest_x, dest_y, 5);
+	}
 }
 
 function runOrder(order)
@@ -380,6 +458,7 @@ var Game = new function Game()
     }
 }
 
+
 function animate(canvas, context, i)
 {
     var width = 4;
@@ -412,10 +491,17 @@ function animate(canvas, context, i)
     var objects = game.getGameObjects()
     for(var i = 0; i<objects.length; i++)
     {
-        var image = objects[i].image;
-        var x = (100 * objects[i].x) + 34;
-        var y = (100 * objects[i].y) + 34;
-        context.drawImage(image, x, y);
+				if(objects[i].animated())
+				{
+					alert("tried to animate for animated object");
+					objects[i].animation.draw(context, actualSpriteSheet);
+				}
+				else{
+        	var image = objects[i].image;
+        	var x = (100 * objects[i].x) + 34;
+        	var y = (100 * objects[i].y) + 34;
+        	context.drawImage(image, x, y);
+				}
     }
     
     //draw turns
@@ -609,6 +695,8 @@ Game.getInstance().addGameObject(new Unit(1,2,1));
 Game.getInstance().addGameObject(new Unit(2,0,3));
 
 var orders = new Array();
+
+var tester = Game.getObjectById(0);
 
 canvas.addEventListener("click", function(e){
     var click_x = e.pageX - this.offsetLeft;
