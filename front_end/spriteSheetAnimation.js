@@ -120,7 +120,7 @@ function AnimationInstance(animation, frame_interval, loop){
 	this.drawCurrentFrame = function(context, ticks, img, x, y, width, height){
 		var frame = this.getCurrentFrame(ticks);
 		//alert("frame = "+frame);
-		alert("reached draw step");
+		alert("drawing "+img+", "+frame.x+", "+frame.y+", "+frame.width+", "+frame.height+", "+x+", "+y+", "+width+", "+height);
 		context.drawImage(img, frame.x, frame.y, frame.width, frame.height, x, y, width, height);
 	}
 

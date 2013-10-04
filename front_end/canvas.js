@@ -57,7 +57,7 @@ sheet.addAnimation("smiley", "smiley", [0,1,2,3,2,1]);
 
 function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*/){
 
-	alert("ran animation code");
+	//alert("ran animation code");
 	this.x = start_x;
   this.y = start_y;
   this.speed = speed;
@@ -69,8 +69,10 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
   
   this.move = function(dir)
   {
+					
           this.x+= Math.cos(dir);
-          this.y+= Math.sin(dir);   
+          this.y+= Math.sin(dir); 
+					alert("moved to "+this.x+", "+this.y);  
 	}
     
   this.update = function()
@@ -82,12 +84,13 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
 
       if(Math.sqrt(dx*dx+ dy*dy)>1)
       {
-        //alert("dx = "+dx+", dy = "+dy)               	
+        alert("dx = "+dx+", dy = "+dy)               	
 				this.move(Math.atan2(this.targetY-this.y,(this.targetX-this.x)));
       }
       else
       {
-					animation.setLoop(false);
+					alert("ended animation");
+					this.animation.setLoop(false);
           this.ended = true;
       }
     }        
@@ -100,12 +103,14 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
 	}
 	
 	this.draw = function(context, spriteSheet){
-		alert("tried to draw");
+		//alert("tried to draw");
 		this.ticks++;
-		this.animation.getCurrentFrame(context, this.ticks, spriteSheet, this.x, this.y, 16, 16);
+		alert("drawing with "+context+", "+this.ticks+", "+spriteSheet+", "+this.x+", "+this.y+" 16, 16"); 
+		alert("animation = "+this.animation.getCurrentFrame());
+		this.animation.drawCurrentFrame(context, this.ticks, spriteSheet, this.x, this.y, 16, 16);
 		this.update();
 	}
-	alert("finished animation code");
+	//alert("finished animation code");
 }
 //End animation code
 
@@ -160,13 +165,16 @@ var Unit = function(p,x,y){
   }
 	
 	this.animated = function(){
-		if(this.animation==null){alert("failed"); return false;}
-		alert("succeeded, reult = "+this.animation.ended);
+		if(this.animation==null){/*alert("failed");*/ return false;}
+		//alert("succeeded, reult = "+this.animation.ended);
 		return !this.animation.ended;
 	}
 
 	this.animateMovement = function(dest_x, dest_y){
-		this.animation = new movementAnimation(this.x, this.y, dest_x, dest_y, 5);
+		//Wrongly used because x and y are grid coordinates not screen co-ordinates
+		this.animation = new movementAnimation(this.x, this.y, dest_x, dest_y, 0, 5);
+		this.x = dest_x;
+		this.y = dest_y;
 	}
 }
 
@@ -493,7 +501,7 @@ function animate(canvas, context, i)
     {
 				if(objects[i].animated())
 				{
-					alert("tried to animate for animated object");
+					//alert("tried to animate for animated object");
 					objects[i].animation.draw(context, actualSpriteSheet);
 				}
 				else{
