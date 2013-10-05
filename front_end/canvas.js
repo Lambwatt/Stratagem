@@ -49,7 +49,7 @@ window.requestAnimFrame = (function(callback) {
 
 var actualSpriteSheet = document.getElementById("smiley");
 var sheet = new SpriteSheetAnimationSet();
-sheet.addFrameStrip("smiley", 0, 0, 16, 16, 0, 16, 4);
+sheet.addFrameStrip("smiley", 0, 0, 15, 15, 15, 0, 4);
 //alert(sheet.frameSetCount);
 sheet.addAnimation("smiley", "smiley", [0,1,2,3,2,1]);
 
@@ -63,7 +63,7 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
   this.speed = speed;
   this.targetX = end_x;
   this.targetY = end_y;
-	this.animation = sheet.getAnimationInstance("smiley", 4, true);//caller sprite 
+	this.animation = sheet.getAnimationInstance("smiley", 30, true);//caller sprite 
 	this.ticks = 0;
 	this.ended = false;
   
@@ -72,7 +72,7 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
 					
           this.x+= Math.cos(dir);
           this.y+= Math.sin(dir); 
-					alert("moved to "+this.x+", "+this.y);  
+					//alert("moved to "+this.x+", "+this.y);  
 	}
     
   this.update = function()
@@ -84,12 +84,12 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
 
       if(Math.sqrt(dx*dx+ dy*dy)>1)
       {
-        alert("dx = "+dx+", dy = "+dy)               	
+        //alert("dx = "+dx+", dy = "+dy)               	
 				this.move(Math.atan2(this.targetY-this.y,(this.targetX-this.x)));
       }
       else
       {
-					alert("ended animation");
+					//alert("ended animation");
 					this.animation.setLoop(false);
           this.ended = true;
       }
@@ -105,8 +105,8 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
 	this.draw = function(context, spriteSheet){
 		//alert("tried to draw");
 		this.ticks++;
-		alert("drawing with "+context+", "+this.ticks+", "+spriteSheet+", "+this.x+", "+this.y+" 16, 16"); 
-		alert("animation = "+this.animation.getCurrentFrame());
+		//alert("drawing with "+context+", "+this.ticks+", "+spriteSheet+", "+this.x+", "+this.y+" 16, 16"); 
+		//alert("animation = "+this.animation.getCurrentFrame());
 		this.animation.drawCurrentFrame(context, this.ticks, spriteSheet, this.x, this.y, 16, 16);
 		this.update();
 	}
@@ -172,7 +172,7 @@ var Unit = function(p,x,y){
 
 	this.animateMovement = function(dest_x, dest_y){
 		//Wrongly used because x and y are grid coordinates not screen co-ordinates
-		this.animation = new movementAnimation(this.x, this.y, dest_x, dest_y, 0, 5);
+		this.animation = new movementAnimation((this.x*100)+34, (this.y*100)+34, (dest_x*100)+34, (dest_y*100)+34, 0, 5);
 		this.x = dest_x;
 		this.y = dest_y;
 	}
