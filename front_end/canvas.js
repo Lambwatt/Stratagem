@@ -63,7 +63,7 @@ function movementAnimation(start_x, start_y, end_x, end_y, dir, speed/*, caller*
   this.speed = speed;
   this.targetX = end_x;
   this.targetY = end_y;
-	this.animation = sheet.getAnimationInstance("smiley", 30, true);//caller sprite 
+	this.animation = sheet.getAnimationInstance("smiley", 15, true);//caller sprite 
 	this.ticks = 0;
 	this.ended = false;
   
@@ -184,9 +184,15 @@ function runOrder(order)
     var step;
     for(var i = 0;i<order.dirs.length; i++)
     {
-        step = getStepFromAngle(unit.x, unit.y, order.dirs[i]);
-        unit.x = step.x;
-        unit.y = step.y;
+				if(unit.animated){
+					i--;
+				}
+				else{
+        	step = getStepFromAngle(unit.x, unit.y, order.dirs[i]);
+					unit.animateMovement(step.x, step.y);
+        	unit.x = step.x;
+        	unit.y = step.y;
+				}
     }
 }
 
