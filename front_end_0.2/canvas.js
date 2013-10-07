@@ -55,3 +55,40 @@ function animate(canvas, context, i)
     for(var i = 0; i<3; i++)
     {
         context.strokeStyle = "rgb(0,0,0)";
+        if(PlayerData.orders[i]==null)
+        {
+            context.fillStyle = "rgb(0,0,255)";
+        }
+        else
+        {
+            context.fillStyle = "rgb(255,0,0)";
+        }
+        context.fillRect(i*100,400,100,100);
+        context.strokeRect(i*100,400,100,100);
+    }
+    
+    context.fillStyle = "rgb(0,255,0)";
+    context.fillRect(300,400,100,100);
+    context.strokeRect(300,400,100,100);
+    
+    if(Game.state instanceof SelectingPosition)
+    {   
+        context.fillStyle = "rgb(0,0,0)";
+        //context.strokeStyle = "rgb(0,0,0)";
+        context.moveTo(Game.selectedObject.x, Game.selectedObject.y);
+        for(var j = 0; j< Game.state.order.length; j++)
+        {
+            /*context.lineTo(Game.state.order[j].x,Game.state.order[j].y);
+            context.moveTo(Game.state.order[j].x,Game.state.order[j].y);*/
+            context.fillRect((Game.state.order[j].x*100)+25,(Game.state.order[j].y*100)+25,50,50);
+        }
+    }
+    i++;
+}
+
+
+setInterval(function() {
+    var startTime = (new Date()).getTime();
+    animate(canvas, context, startTime);
+    
+}, 30);
