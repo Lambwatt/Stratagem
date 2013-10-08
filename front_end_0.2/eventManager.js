@@ -1,5 +1,13 @@
 //contains queue of changes to be made to the model on a fixed rate. (4x/sec?) contains code to manage event system.
 
+var eventManager = new EventManager();
+setInterval(function() {
+    //var startTime = (new Date()).getTime();
+    eventManager.chechPendingEvents();
+		eventManager.step();
+		eventManager.finish();
+}, 10);
+
 function StEvent(prereqs, init_code, step_code, end_code){
 	this.prerqs = prereqs;
 	this.init_code = init_code;
